@@ -3,14 +3,25 @@
  * SPDX-FileCopyrightText: Huawei Inc.
  */
 
-import { useMutation } from '@tanstack/react-query';
-import { redeployFailedDeployment, RedeployFailedDeploymentData } from '../../../../xpanse-api/generated/';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import {
+    redeployFailedDeployment,
+    RedeployFailedDeploymentData,
+    serviceHostingType,
+} from '../../../../xpanse-api/generated/';
+import { getQueryKeyForServiceDetailsByServiceIdQuery } from '../../common/queries/useServiceDetailsByServiceIdQuery.ts';
 
-export default function useRedeployFailedDeploymentQuery() {
+export default function useRedeployFailedDeploymentQuery(serviceHostingType: serviceHostingType) {
+    const queryClient = useQueryClient();
     return useMutation({
         mutationFn: (serviceId: string) => {
             const data: RedeployFailedDeploymentData = { serviceId: serviceId };
             return redeployFailedDeployment(data);
+        },
+        onSuccess: (data) => {
+            queryClient.removeQueries({
+                queryKey: getQueryKeyForServiceDetailsByServiceIdQuery(data.serviceId, serviceHostingType),
+            });
         },
     });
 }

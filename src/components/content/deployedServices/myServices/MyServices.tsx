@@ -157,7 +157,9 @@ function MyServices(): React.JSX.Element {
 
     const serviceDestroyQuery = useDestroyRequestSubmitQuery();
     const servicePurgeQuery = usePurgeRequestSubmitQuery();
-    const redeployFailedDeploymentQuery = useRedeployFailedDeploymentQuery();
+    const redeployFailedDeploymentQuery = useRedeployFailedDeploymentQuery(
+        activeRecord ? (activeRecord.serviceHostingType as serviceHostingType) : serviceHostingType.SELF
+    );
     const serviceRecreateRequest = useRecreateRequest();
 
     const serviceStateStartQuery = useServiceStateStartQuery();

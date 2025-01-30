@@ -18,7 +18,7 @@ export const ProcessingStatus = ({
 }): React.JSX.Element => {
     const errorMsg: string = 'Please contact service vendor for error details.';
     const endPointMap = new Map<string, string>();
-    if (operationType === (OperationType.Deploy as OperationType)) {
+    if (operationType === OperationType.Deploy) {
         if (response?.serviceDeploymentState === serviceDeploymentState.DEPLOYMENT_SUCCESSFUL) {
             if (response.deployedServiceProperties) {
                 for (const key in response.deployedServiceProperties) {
@@ -49,7 +49,7 @@ export const ProcessingStatus = ({
         }
     }
 
-    if (operationType === (OperationType.Modify as OperationType)) {
+    if (operationType === OperationType.Modify) {
         if (response?.serviceDeploymentState === serviceDeploymentState.MODIFICATION_SUCCESSFUL) {
             if (response.deployedServiceProperties) {
                 for (const key in response.deployedServiceProperties) {
@@ -80,7 +80,7 @@ export const ProcessingStatus = ({
         }
     }
 
-    if (operationType === (OperationType.Destroy as OperationType)) {
+    if (operationType === OperationType.Destroy) {
         if (response?.serviceDeploymentState === serviceDeploymentState.DESTROY_SUCCESSFUL) {
             return (
                 <div>

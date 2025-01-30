@@ -22,7 +22,6 @@ import { isHandleKnownErrorResponse } from '../../common/error/isHandleKnownErro
 import { ContactDetailsShowType } from '../../common/ocl/ContactDetailsShowType.ts';
 import { ContactDetailsText } from '../../common/ocl/ContactDetailsText.tsx';
 import { useLatestServiceOrderStatusQuery } from '../../common/queries/useLatestServiceOrderStatusQuery.ts';
-import { useServiceDetailsByServiceIdQuery } from '../../common/queries/useServiceDetailsByServiceIdQuery.ts';
 import { EulaInfo } from '../common/EulaInfo';
 import { IsvNameDisplay } from '../common/IsvNameDisplay.tsx';
 import { ServiceTitle } from '../common/ServiceTitle.tsx';
@@ -41,19 +40,13 @@ function OrderSubmit(state: OrderSubmitProps): React.JSX.Element {
     const [isShowDeploymentResult, setIsShowDeploymentResult] = useState<boolean>(false);
     const uniqueRequestId = useRef(v4());
     const submitDeploymentRequest = useDeployRequestSubmitQuery();
-    const redeployFailedDeploymentQuery = useRedeployFailedDeploymentQuery();
+    const redeployFailedDeploymentQuery = useRedeployFailedDeploymentQuery(state.serviceHostingType);
     const getSubmitLatestServiceOrderStatusQuery = useLatestServiceOrderStatusQuery(
         redeployFailedDeploymentQuery.isSuccess
             ? redeployFailedDeploymentQuery.data.orderId
             : (submitDeploymentRequest.data?.orderId ?? ''),
         submitDeploymentRequest.isSuccess || redeployFailedDeploymentQuery.isSuccess,
         [taskStatus.SUCCESSFUL, taskStatus.FAILED]
-    );
-
-    const getServiceDetailsByIdQuery = useServiceDetailsByServiceIdQuery(
-        submitDeploymentRequest.data?.serviceId ?? '',
-        state.serviceHostingType,
-        getSubmitLatestServiceOrderStatusQuery.data?.taskStatus
     );
 
     const orderableServicesQuery = userOrderableServicesQuery(state.category, state.name);
@@ -227,12 +220,11 @@ function OrderSubmit(state: OrderSubmitProps): React.JSX.Element {
                     {isShowDeploymentResult ? (
                         <OrderSubmitStatusAlert
                             key={uniqueRequestId.current}
-                            uuid={submitDeploymentRequest.data?.serviceId ?? ''}
+                            serviceId={submitDeploymentRequest.data?.serviceId ?? ''}
                             serviceHostType={state.serviceHostingType}
                             submitDeploymentRequest={submitDeploymentRequest}
                             redeployFailedDeploymentQuery={redeployFailedDeploymentQuery}
                             getSubmitLatestServiceOrderStatusQuery={getSubmitLatestServiceOrderStatusQuery}
-                            deployedServiceDetails={getServiceDetailsByIdQuery.data}
                             serviceProviderContactDetails={state.contactServiceDetails}
                             retryRequest={retryRequest}
                             onClose={onClose}

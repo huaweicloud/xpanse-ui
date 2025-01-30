@@ -13,13 +13,15 @@ import {
     taskStatus,
 } from '../../../../xpanse-api/generated';
 
+const GET_SERVICE_DETAILS_QUERY_ID = 'getServiceDetailsById';
+
 export function useServiceDetailsByServiceIdQuery(
     serviceId: string | undefined,
     currentServiceHostingType: string,
     currentServiceOrderTaskStatus: string | undefined
 ) {
     return useQuery({
-        queryKey: ['getServiceDetailsById', serviceId, currentServiceHostingType],
+        queryKey: [GET_SERVICE_DETAILS_QUERY_ID, serviceId, currentServiceHostingType],
         queryFn: () => {
             if (currentServiceHostingType === serviceHostingType.SELF.toString()) {
                 const data: GetSelfHostedServiceDetailsByIdData = {
@@ -40,4 +42,11 @@ export function useServiceDetailsByServiceIdQuery(
         staleTime: Infinity,
         gcTime: Infinity,
     });
+}
+
+export function getQueryKeyForServiceDetailsByServiceIdQuery(
+    serviceId: string,
+    currentServiceHostingType: string
+): string[] {
+    return [GET_SERVICE_DETAILS_QUERY_ID, serviceId, currentServiceHostingType];
 }

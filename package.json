@@ -99,9 +99,6 @@
             "eslint-config-prettier",
             "eslint-plugin-prettier"
         ],
-        "ignoreBinaries": [
-            "zip"
-        ],
         "eslint": {
             "config": [
                 "./eslint.config.mjs"

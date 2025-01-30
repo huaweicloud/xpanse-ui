@@ -13,7 +13,6 @@ import {
     ServiceOrderStatusUpdate,
     ServiceProviderContactDetails,
 } from '../../../../xpanse-api/generated';
-import { useServiceDetailsByServiceIdQuery } from '../../common/queries/useServiceDetailsByServiceIdQuery.ts';
 import OrderSubmitStatusAlert from '../orderStatus/OrderSubmitStatusAlert.tsx';
 
 export const RetryServiceSubmit = ({
@@ -35,20 +34,14 @@ export const RetryServiceSubmit = ({
     retryRequest: () => void;
     onClose: () => void;
 }): React.JSX.Element => {
-    const getServiceDetailsQuery = useServiceDetailsByServiceIdQuery(
-        currentSelectedService.serviceId,
-        currentSelectedService.serviceHostingType,
-        getSubmitLatestServiceOrderStatusQuery.data?.taskStatus
-    );
     return (
         <>
             <OrderSubmitStatusAlert
-                uuid={currentSelectedService.serviceId}
+                serviceId={currentSelectedService.serviceId}
                 serviceHostType={currentSelectedService.serviceHostingType as serviceHostingType}
                 submitDeploymentRequest={submitDeploymentRequest}
                 redeployFailedDeploymentQuery={redeployFailedDeploymentQuery}
                 getSubmitLatestServiceOrderStatusQuery={getSubmitLatestServiceOrderStatusQuery}
-                deployedServiceDetails={getServiceDetailsQuery.data}
                 serviceProviderContactDetails={serviceProviderContactDetails}
                 retryRequest={retryRequest}
                 onClose={onClose}

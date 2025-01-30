@@ -7,7 +7,6 @@ import { UseMutationResult, UseQueryResult } from '@tanstack/react-query';
 import React, { useMemo } from 'react';
 import { useStopwatch } from 'react-timer-hook';
 import {
-    DeployedServiceDetails,
     DeployRequest,
     ErrorResponse,
     serviceHostingType,
@@ -19,28 +18,26 @@ import {
 import { convertStringArrayToUnorderedList } from '../../../utils/generateUnorderedList';
 import { isHandleKnownErrorResponse } from '../../common/error/isHandleKnownErrorResponse.ts';
 import { OperationType } from '../types/OperationType';
+import { OrderProcessingStatus } from './OrderProcessingStatus.tsx';
 import { OrderSubmitResult } from './OrderSubmitResult';
-import { ProcessingStatus } from './ProcessingStatus';
 
 function OrderSubmitStatusAlert({
-    uuid,
+    serviceId,
     serviceHostType,
     submitDeploymentRequest,
     redeployFailedDeploymentQuery,
     getSubmitLatestServiceOrderStatusQuery,
-    deployedServiceDetails,
     serviceProviderContactDetails,
     retryRequest,
     onClose,
 }: {
-    uuid: string;
+    serviceId: string;
     serviceHostType: serviceHostingType;
     submitDeploymentRequest:
         | UseMutationResult<ServiceOrder, Error, DeployRequest>
         | UseMutationResult<ServiceOrder, Error, string>;
     redeployFailedDeploymentQuery: UseMutationResult<ServiceOrder, Error, string>;
     getSubmitLatestServiceOrderStatusQuery: UseQueryResult<ServiceOrderStatusUpdate>;
-    deployedServiceDetails: DeployedServiceDetails | undefined;
     serviceProviderContactDetails: ServiceProviderContactDetails | undefined;
     retryRequest: () => void;
     onClose: () => void;
@@ -76,7 +73,14 @@ function OrderSubmitStatusAlert({
                     taskStatus.SUCCESSFUL.toString() ||
                     getSubmitLatestServiceOrderStatusQuery.data.taskStatus.toString() === taskStatus.FAILED.toString())
             ) {
-                return <ProcessingStatus response={deployedServiceDetails} operationType={OperationType.Deploy} />;
+                return (
+                    <OrderProcessingStatus
+                        operationType={OperationType.Deploy}
+                        serviceOrderStatus={getSubmitLatestServiceOrderStatusQuery.data}
+                        serviceId={serviceId}
+                        selectedServiceHostingType={serviceHostType}
+                    />
+                );
             } else if (getSubmitLatestServiceOrderStatusQuery.isError) {
                 if (serviceHostType === serviceHostingType.SERVICE_VENDOR) {
                     return 'Deployment status polling failed. Please visit MyServices page to check the status of the request and contact service vendor for error details.';
@@ -91,11 +95,20 @@ function OrderSubmitStatusAlert({
             }
         }
     }, [
+        submitDeploymentRequest.isPending,
+        submitDeploymentRequest.isError,
+        submitDeploymentRequest.isSuccess,
+        submitDeploymentRequest.error,
+        redeployFailedDeploymentQuery.isPending,
+        redeployFailedDeploymentQuery.isError,
+        redeployFailedDeploymentQuery.isSuccess,
+        redeployFailedDeploymentQuery.error,
+        getSubmitLatestServiceOrderStatusQuery.isSuccess,
+        getSubmitLatestServiceOrderStatusQuery.data,
+        getSubmitLatestServiceOrderStatusQuery.isError,
+        getSubmitLatestServiceOrderStatusQuery.isPending,
+        serviceId,
         serviceHostType,
-        deployedServiceDetails,
-        submitDeploymentRequest,
-        redeployFailedDeploymentQuery,
-        getSubmitLatestServiceOrderStatusQuery,
     ]);
 
     const alertType = useMemo(() => {
@@ -156,7 +169,7 @@ function OrderSubmitStatusAlert({
             ) {
                 return submitDeploymentRequest.error.body.serviceId as string;
             } else {
-                return uuid;
+                return serviceId;
             }
         }
     };
