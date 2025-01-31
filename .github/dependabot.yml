@@ -46,6 +46,11 @@ updates:
               patterns:
                   - 'vite'
                   - '@vitejs/plugin-react'
+          react:
+              applies-to: version-updates
+              patterns:
+                  - 'react*'
+                  - '@types/react*'
     - package-ecosystem: docker
       directory: /docker
       schedule:
