@@ -16,12 +16,12 @@ import {
     backendSystemType,
     ErrorResponse,
     healthStatus,
-    SystemStatus,
+    StackStatus,
 } from '../../../xpanse-api/generated';
 import { convertStringArrayToUnorderedList } from '../../utils/generateUnorderedList';
 import { isHandleKnownErrorResponse } from '../common/error/isHandleKnownErrorResponse.ts';
 import SystemStatusIcon from './SystemStatusIcon';
-import { useHealthCheckStatusQuery } from './useHealthCheckStatusQuery';
+import { useStackHealthCheckStatusQuery } from './useStackCheckStatusQuery.ts';
 
 interface DataType {
     key: React.Key;
@@ -102,10 +102,10 @@ export default function HealthCheckStatus(): React.JSX.Element {
         });
         healthStatusFilters = filters;
     };
-    const healthCheckQuery = useHealthCheckStatusQuery();
+    const healthCheckQuery = useStackHealthCheckStatusQuery();
 
     if (healthCheckQuery.isSuccess) {
-        const rsp: SystemStatus | undefined = healthCheckQuery.data;
+        const rsp: StackStatus | undefined = healthCheckQuery.data;
         updateBackendSystemStatusList(rsp.backendSystemStatuses);
         updateNameFilters(rsp.backendSystemStatuses);
         updateBackendSystemTypeFilters(rsp.backendSystemStatuses);
