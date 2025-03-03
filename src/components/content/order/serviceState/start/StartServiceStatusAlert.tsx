@@ -4,22 +4,21 @@
  */
 
 import { UseMutationResult, UseQueryResult } from '@tanstack/react-query';
-import { Alert } from 'antd';
-import React from 'react';
-import submitAlertStyles from '../../../../../styles/submit-alert.module.css';
+import React, { useMemo } from 'react';
 import {
     DeployedService,
     ErrorResponse,
     orderStatus,
+    serviceHostingType,
     ServiceOrder,
     ServiceOrderStatusUpdate,
     ServiceProviderContactDetails,
-    serviceState,
 } from '../../../../../xpanse-api/generated';
+import { convertStringArrayToUnorderedList } from '../../../../utils/generateUnorderedList.tsx';
 import { isHandleKnownErrorResponse } from '../../../common/error/isHandleKnownErrorResponse.ts';
-import { ContactDetailsShowType } from '../../../common/ocl/ContactDetailsShowType';
-import { ContactDetailsText } from '../../../common/ocl/ContactDetailsText';
-import OrderSubmitResultDetails from '../../orderStatus/OrderSubmitResultDetails';
+import { ServiceStateSubmitResult } from '../../common/ServiceStateSubmitResult.tsx';
+import { OrderProcessingStatus } from '../../orderStatus/OrderProcessingStatus.tsx';
+import { OperationType } from '../../types/OperationType.ts';
 
 function StartServiceStatusAlert({
     deployedService,
@@ -38,140 +37,117 @@ function StartServiceStatusAlert({
         closeStartResultAlert(true);
     };
 
-    if (serviceStateStartQuery.isError) {
-        let errorMessage;
-        if (isHandleKnownErrorResponse(serviceStateStartQuery.error)) {
-            const response: ErrorResponse = serviceStateStartQuery.error.body;
-            errorMessage = response.details;
-        } else {
-            errorMessage = serviceStateStartQuery.error.message;
+    const msg = useMemo(() => {
+        if (serviceStateStartQuery.isPending) {
+            return 'Request submission in-progress';
+        } else if (serviceStateStartQuery.isError) {
+            if (isHandleKnownErrorResponse(serviceStateStartQuery.error)) {
+                const response: ErrorResponse = serviceStateStartQuery.error.body;
+                return getOrderSubmissionFailedDisplay(response.errorType, response.details);
+            } else {
+                return getOrderSubmissionFailedDisplay(serviceStateStartQuery.error.name, [
+                    serviceStateStartQuery.error.message,
+                ]);
+            }
+        } else if (serviceStateStartQuery.isSuccess) {
+            if (
+                getStartServiceDetailsQuery.isSuccess &&
+                (getStartServiceDetailsQuery.data.orderStatus.toString() === orderStatus.SUCCESSFUL.toString() ||
+                    getStartServiceDetailsQuery.data.orderStatus.toString() === orderStatus.FAILED.toString())
+            ) {
+                return (
+                    <OrderProcessingStatus
+                        operationType={OperationType.Start}
+                        serviceOrderStatus={getStartServiceDetailsQuery.data}
+                        serviceId={deployedService.serviceId}
+                        selectedServiceHostingType={deployedService.serviceHostingType as serviceHostingType}
+                    />
+                );
+            } else if (getStartServiceDetailsQuery.isError) {
+                if (deployedService.serviceHostingType === serviceHostingType.SERVICE_VENDOR) {
+                    return 'Service start status polling failed. Please visit MyServices page to check the status of the request and contact service vendor for error details.';
+                } else {
+                    return 'Service start status polling failed. Please visit MyServices page to check the status of the request';
+                }
+            } else if (
+                getStartServiceDetailsQuery.isPending ||
+                getStartServiceDetailsQuery.data.orderStatus.toString() === orderStatus.IN_PROGRESS.toString()
+            ) {
+                return 'Starting, Please wait...';
+            }
         }
+    }, [
+        serviceStateStartQuery.isPending,
+        serviceStateStartQuery.isError,
+        serviceStateStartQuery.isSuccess,
+        serviceStateStartQuery.error,
+        getStartServiceDetailsQuery.isSuccess,
+        getStartServiceDetailsQuery.isError,
+        getStartServiceDetailsQuery.isPending,
+        getStartServiceDetailsQuery.data,
+        deployedService.serviceId,
+        deployedService.serviceHostingType,
+    ]);
+
+    const alertType = useMemo(() => {
+        if (serviceStateStartQuery.isPending) {
+            return 'success';
+        } else if (serviceStateStartQuery.isError || getStartServiceDetailsQuery.isError) {
+            return 'error';
+        } else if (serviceStateStartQuery.isSuccess) {
+            if (
+                getStartServiceDetailsQuery.isSuccess &&
+                getStartServiceDetailsQuery.data.orderStatus.toString() === orderStatus.FAILED.toString()
+            ) {
+                return 'error';
+            } else if (
+                getStartServiceDetailsQuery.isSuccess &&
+                getStartServiceDetailsQuery.data.orderStatus.toString() === orderStatus.SUCCESSFUL.toString()
+            ) {
+                return 'success';
+            } else if (
+                getStartServiceDetailsQuery.isPending ||
+                getStartServiceDetailsQuery.data.orderStatus.toString() === orderStatus.IN_PROGRESS.toString()
+            ) {
+                return 'success';
+            }
+        }
+        return 'success';
+    }, [serviceStateStartQuery, getStartServiceDetailsQuery]);
+
+    function getOrderSubmissionFailedDisplay(errorType: string, reasons: string[]) {
         return (
-            <div className={submitAlertStyles.submitAlertTip}>
-                {' '}
-                <Alert
-                    message={errorMessage}
-                    description={
-                        <OrderSubmitResultDetails msg={'Start request failed'} serviceId={deployedService.serviceId} />
-                    }
-                    showIcon
-                    closable={true}
-                    onClose={onClose}
-                    type={'error'}
-                    action={
-                        <>
-                            {serviceProviderContactDetails ? (
-                                <ContactDetailsText
-                                    serviceProviderContactDetails={serviceProviderContactDetails}
-                                    showFor={ContactDetailsShowType.Order}
-                                />
-                            ) : (
-                                <></>
-                            )}
-                        </>
-                    }
-                />{' '}
+            <div>
+                <span>{errorType.length > 0 ? errorType : 'Service start request failed.'}</span>
+                <div>{convertStringArrayToUnorderedList(reasons)}</div>
             </div>
         );
     }
 
-    if (getStartServiceDetailsQuery.isError) {
-        if (isHandleKnownErrorResponse(getStartServiceDetailsQuery.error)) {
-            const response: ErrorResponse = getStartServiceDetailsQuery.error.body;
-            return (
-                <div className={submitAlertStyles.submitAlertTip}>
-                    {' '}
-                    <Alert
-                        message={response.details}
-                        description={
-                            <OrderSubmitResultDetails
-                                msg={'Polling Service start Status Failed'}
-                                serviceId={deployedService.serviceId}
-                            />
-                        }
-                        showIcon
-                        closable={true}
-                        onClose={onClose}
-                        type={'error'}
-                        action={
-                            <>
-                                {serviceProviderContactDetails ? (
-                                    <ContactDetailsText
-                                        serviceProviderContactDetails={serviceProviderContactDetails}
-                                        showFor={ContactDetailsShowType.Order}
-                                    />
-                                ) : (
-                                    <></>
-                                )}
-                            </>
-                        }
-                    />{' '}
-                </div>
-            );
+    const getOrderId = (): string => {
+        if (serviceStateStartQuery.isSuccess) {
+            return serviceStateStartQuery.data.orderId;
+        } else {
+            if (
+                isHandleKnownErrorResponse(serviceStateStartQuery.error) &&
+                'orderId' in serviceStateStartQuery.error.body
+            ) {
+                return serviceStateStartQuery.error.body.orderId as string;
+            }
+            return '-';
         }
-    }
+    };
 
-    if (getStartServiceDetailsQuery.isSuccess) {
-        if (getStartServiceDetailsQuery.data.orderStatus.toString() === orderStatus.SUCCESSFUL.toString()) {
-            return (
-                <div className={submitAlertStyles.submitAlertTip}>
-                    {' '}
-                    <Alert
-                        message={getStartServiceDetailsQuery.data.orderStatus}
-                        description={
-                            <OrderSubmitResultDetails
-                                msg={'Service started successfully'}
-                                serviceId={deployedService.serviceId}
-                            />
-                        }
-                        showIcon
-                        closable={true}
-                        onClose={onClose}
-                        type={'success'}
-                    />{' '}
-                </div>
-            );
-        } else if (getStartServiceDetailsQuery.data.orderStatus.toString() === orderStatus.FAILED.toString()) {
-            return (
-                <div className={submitAlertStyles.submitAlertTip}>
-                    {' '}
-                    <Alert
-                        message={getStartServiceDetailsQuery.data.orderStatus}
-                        description={
-                            <OrderSubmitResultDetails
-                                msg={
-                                    getStartServiceDetailsQuery.data.error &&
-                                    Array.isArray(getStartServiceDetailsQuery.data.error.details)
-                                        ? getStartServiceDetailsQuery.data.error.details.join(', ')
-                                        : 'Start failed'
-                                }
-                                serviceId={deployedService.serviceId}
-                            />
-                        }
-                        showIcon
-                        closable={true}
-                        onClose={onClose}
-                        type={'error'}
-                        action={
-                            <>
-                                {serviceProviderContactDetails ? (
-                                    <ContactDetailsText
-                                        serviceProviderContactDetails={serviceProviderContactDetails}
-                                        showFor={ContactDetailsShowType.Order}
-                                    />
-                                ) : (
-                                    <></>
-                                )}
-                            </>
-                        }
-                    />{' '}
-                </div>
-            );
-        } else if (getStartServiceDetailsQuery.data.orderStatus.toString() === orderStatus.IN_PROGRESS.toString()) {
-            deployedService.serviceState = serviceState.STARTING;
-        }
-    }
-    return <></>;
+    return (
+        <ServiceStateSubmitResult
+            msg={msg ?? ''}
+            serviceId={deployedService.serviceId}
+            orderId={getOrderId()}
+            type={alertType}
+            onClose={onClose}
+            contactServiceDetails={alertType !== 'success' ? serviceProviderContactDetails : undefined}
+        />
+    );
 }
 
 export default StartServiceStatusAlert;

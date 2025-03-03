@@ -91,10 +91,22 @@ export function PurgeServiceStatusAlert({
         );
     }
 
+    const getOrderId = (): string => {
+        if (purgeSubmitRequest.isSuccess) {
+            return purgeSubmitRequest.data.orderId;
+        } else {
+            if (isHandleKnownErrorResponse(purgeSubmitRequest.error) && 'orderId' in purgeSubmitRequest.error.body) {
+                return purgeSubmitRequest.error.body.orderId as string;
+            }
+            return '-';
+        }
+    };
+
     return (
         <PurgeOrderSubmitResult
             msg={msg ?? ''}
-            uuid={deployedService.serviceId}
+            serviceId={deployedService.serviceId}
+            orderId={getOrderId()}
             type={alertType}
             onClose={onClose}
             contactServiceDetails={alertType !== 'success' ? serviceProviderContactDetails : undefined}

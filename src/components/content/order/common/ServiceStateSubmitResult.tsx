@@ -4,29 +4,26 @@
  */
 
 import { Alert } from 'antd';
-import { StopwatchResult } from 'react-timer-hook';
-import { ServiceProviderContactDetails } from '../../../../xpanse-api/generated';
-
 import React from 'react';
 import submitAlertStyles from '../../../../styles/submit-alert.module.css';
+import { ServiceProviderContactDetails } from '../../../../xpanse-api/generated';
 import { ContactDetailsShowType } from '../../common/ocl/ContactDetailsShowType';
 import { ContactDetailsText } from '../../common/ocl/ContactDetailsText';
-import DeploymentTimer from '../orderStatus/DeploymentTimer';
 import OrderSubmitResultDetails from '../orderStatus/OrderSubmitResultDetails';
 
-export const PortServiceOrderSubmitResult = ({
+export const ServiceStateSubmitResult = ({
     msg,
     serviceId,
     orderId,
     type,
-    stopWatch,
+    onClose,
     contactServiceDetails,
 }: {
     msg: string | React.JSX.Element;
     serviceId: string;
     orderId: string;
     type: 'success' | 'error';
-    stopWatch: StopwatchResult;
+    onClose: () => void;
     contactServiceDetails: ServiceProviderContactDetails | undefined;
 }): React.JSX.Element => {
     return (
@@ -36,7 +33,8 @@ export const PortServiceOrderSubmitResult = ({
                 message={`Processing Status`}
                 description={<OrderSubmitResultDetails msg={msg} serviceId={serviceId} orderId={orderId} />}
                 showIcon
-                closable={false}
+                closable={true}
+                onClose={onClose}
                 type={type}
                 action={
                     <>
@@ -48,7 +46,6 @@ export const PortServiceOrderSubmitResult = ({
                         ) : (
                             <></>
                         )}
-                        <DeploymentTimer stopWatch={stopWatch} />
                     </>
                 }
             />{' '}

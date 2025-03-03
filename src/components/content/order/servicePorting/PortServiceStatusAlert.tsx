@@ -122,10 +122,34 @@ function PortServiceStatusAlert({
         );
     }
 
+    const getServiceId = (): string => {
+        if (portServiceRequest.isSuccess) {
+            return portServiceRequest.data.serviceId;
+        } else {
+            if (isHandleKnownErrorResponse(portServiceRequest.error) && 'serviceId' in portServiceRequest.error.body) {
+                return portServiceRequest.error.body.serviceId as string;
+            } else {
+                return '-';
+            }
+        }
+    };
+
+    const getOrderId = (): string => {
+        if (portServiceRequest.isSuccess) {
+            return portServiceRequest.data.orderId;
+        } else {
+            if (isHandleKnownErrorResponse(portServiceRequest.error) && 'orderId' in portServiceRequest.error.body) {
+                return portServiceRequest.error.body.orderId as string;
+            }
+            return '-';
+        }
+    };
+
     return (
         <PortServiceOrderSubmitResult
             msg={msg ?? ''}
-            uuid={portServiceRequest.data?.serviceId ?? '-'}
+            serviceId={getServiceId()}
+            orderId={getOrderId()}
             type={alertType}
             stopWatch={stopWatch}
             contactServiceDetails={alertType !== 'success' ? serviceProviderContactDetails : undefined}

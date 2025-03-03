@@ -146,10 +146,25 @@ function ScaleOrModifySubmitStatusAlert({
         );
     }
 
+    const getOrderId = (): string => {
+        if (modifyServiceRequest.isSuccess) {
+            return modifyServiceRequest.data.orderId;
+        } else {
+            if (
+                isHandleKnownErrorResponse(modifyServiceRequest.error) &&
+                'orderId' in modifyServiceRequest.error.body
+            ) {
+                return modifyServiceRequest.error.body.orderId as string;
+            }
+            return '-';
+        }
+    };
+
     return (
         <ScaleOrModifyOrderSubmitResult
             msg={msg ?? ''}
-            uuid={currentSelectedService.serviceId}
+            serviceId={currentSelectedService.serviceId}
+            orderId={getOrderId()}
             type={alertType}
             stopWatch={stopWatch}
             contactServiceDetails={alertType !== 'success' ? serviceProviderContactDetails : undefined}

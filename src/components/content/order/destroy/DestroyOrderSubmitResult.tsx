@@ -15,14 +15,16 @@ import OrderSubmitResultDetails from '../orderStatus/OrderSubmitResultDetails';
 
 export const DestroyOrderSubmitResult = ({
     msg,
-    uuid,
+    serviceId,
+    orderId,
     type,
     onClose,
     stopWatch,
     contactServiceDetails,
 }: {
     msg: string | React.JSX.Element;
-    uuid: string;
+    serviceId: string;
+    orderId: string;
     type: 'success' | 'error';
     onClose: () => void;
     stopWatch: StopwatchResult;
@@ -33,7 +35,7 @@ export const DestroyOrderSubmitResult = ({
             {' '}
             <Alert
                 message={`Processing Status`}
-                description={<OrderSubmitResultDetails msg={msg} serviceId={uuid} />}
+                description={<OrderSubmitResultDetails msg={msg} serviceId={serviceId} orderId={orderId} />}
                 showIcon
                 closable={true}
                 onClose={onClose}

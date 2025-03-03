@@ -142,5 +142,68 @@ export const OrderProcessingStatus = ({
             );
         }
     }
+
+    if (operationType === OperationType.Restart) {
+        if (serviceOrderStatus.orderStatus === 'successful') {
+            return (
+                <div>
+                    <span>{'Service restarted successfully.'}</span>
+                </div>
+            );
+        } else if (serviceOrderStatus.orderStatus === 'failed') {
+            return (
+                <div>
+                    <span>{'Service restarted failed.'}</span>
+                    <div>
+                        {selectedServiceHostingType === serviceHostingType.SELF
+                            ? serviceOrderStatus.error?.details.join()
+                            : errorMsg}
+                    </div>
+                </div>
+            );
+        }
+    }
+
+    if (operationType === OperationType.Start) {
+        if (serviceOrderStatus.orderStatus === 'successful') {
+            return (
+                <div>
+                    <span>{'Service started successfully.'}</span>
+                </div>
+            );
+        } else if (serviceOrderStatus.orderStatus === 'failed') {
+            return (
+                <div>
+                    <span>{'Service started failed.'}</span>
+                    <div>
+                        {selectedServiceHostingType === serviceHostingType.SELF
+                            ? serviceOrderStatus.error?.details.join()
+                            : errorMsg}
+                    </div>
+                </div>
+            );
+        }
+    }
+
+    if (operationType === OperationType.Stop) {
+        if (serviceOrderStatus.orderStatus === 'successful') {
+            return (
+                <div>
+                    <span>{'Service stopped successfully.'}</span>
+                </div>
+            );
+        } else if (serviceOrderStatus.orderStatus === 'failed') {
+            return (
+                <div>
+                    <span>{'Service stopped failed.'}</span>
+                    <div>
+                        {selectedServiceHostingType === serviceHostingType.SELF
+                            ? serviceOrderStatus.error?.details.join()
+                            : errorMsg}
+                    </div>
+                </div>
+            );
+        }
+    }
     return <></>;
 };

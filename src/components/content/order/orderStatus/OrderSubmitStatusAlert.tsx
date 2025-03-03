@@ -177,6 +177,30 @@ function OrderSubmitStatusAlert({
         }
     };
 
+    const getOrderId = (): string => {
+        if (submitDeploymentRequest.isSuccess) {
+            return submitDeploymentRequest.data.orderId;
+        }
+        if (redeployFailedDeploymentQuery.isSuccess) {
+            return redeployFailedDeploymentQuery.data.orderId;
+        }
+
+        if (
+            isHandleKnownErrorResponse(redeployFailedDeploymentQuery.error) &&
+            'orderId' in redeployFailedDeploymentQuery.error.body
+        ) {
+            return redeployFailedDeploymentQuery.error.body.orderId as string;
+        }
+
+        if (
+            isHandleKnownErrorResponse(submitDeploymentRequest.error) &&
+            'orderId' in submitDeploymentRequest.error.body
+        ) {
+            return submitDeploymentRequest.error.body.orderId as string;
+        }
+        return '-';
+    };
+
     const isDeployDisabled = () => {
         if (
             isHandleKnownErrorResponse(submitDeploymentRequest.error) &&
@@ -200,7 +224,8 @@ function OrderSubmitStatusAlert({
     return (
         <OrderSubmitResult
             msg={msg ?? ''}
-            uuid={getServiceId()}
+            serviceId={getServiceId()}
+            orderId={getOrderId()}
             type={alertType}
             stopWatch={stopWatch}
             isDeployRequestError={isDeployDisabled()}

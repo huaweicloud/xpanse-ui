@@ -125,10 +125,34 @@ function RecreateServiceStatusAlert({
         );
     }
 
+    const getServiceId = (): string => {
+        if (recreateRequest.isSuccess) {
+            return recreateRequest.data.serviceId;
+        } else {
+            if (isHandleKnownErrorResponse(recreateRequest.error) && 'serviceId' in recreateRequest.error.body) {
+                return recreateRequest.error.body.serviceId as string;
+            } else {
+                return '-';
+            }
+        }
+    };
+
+    const getOrderId = (): string => {
+        if (recreateRequest.isSuccess) {
+            return recreateRequest.data.orderId;
+        } else {
+            if (isHandleKnownErrorResponse(recreateRequest.error) && 'orderId' in recreateRequest.error.body) {
+                return recreateRequest.error.body.orderId as string;
+            }
+            return '-';
+        }
+    };
+
     return (
         <RecreateOrderSubmitResult
             msg={msg ?? ''}
-            uuid={recreateRequest.data?.serviceId ?? '-'}
+            serviceId={getServiceId()}
+            orderId={getOrderId()}
             type={alertType}
             stopWatch={stopWatch}
             closeRecreateResultAlert={closeRecreateResultAlert}

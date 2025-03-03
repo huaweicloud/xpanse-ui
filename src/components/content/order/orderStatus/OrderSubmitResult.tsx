@@ -16,7 +16,8 @@ import OrderSubmitResultDetails from './OrderSubmitResultDetails';
 
 export const OrderSubmitResult = ({
     msg,
-    uuid,
+    serviceId,
+    orderId,
     type,
     stopWatch,
     isDeployRequestError,
@@ -25,7 +26,8 @@ export const OrderSubmitResult = ({
     onClose,
 }: {
     msg: string | React.JSX.Element;
-    uuid: string;
+    serviceId: string;
+    orderId: string;
     type: 'success' | 'error';
     stopWatch: StopwatchResult;
     isDeployRequestError: boolean;
@@ -38,7 +40,7 @@ export const OrderSubmitResult = ({
             {' '}
             <Alert
                 message={`Processing Status`}
-                description={<OrderSubmitResultDetails msg={msg} serviceId={uuid} />}
+                description={<OrderSubmitResultDetails msg={msg} serviceId={serviceId} orderId={orderId} />}
                 showIcon
                 closable={true}
                 onClose={onClose}

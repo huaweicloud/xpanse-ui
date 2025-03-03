@@ -16,14 +16,16 @@ import OrderSubmitResultDetails from '../orderStatus/OrderSubmitResultDetails';
 
 export const RecreateOrderSubmitResult = ({
     msg,
-    uuid,
+    serviceId,
+    orderId,
     type,
     stopWatch,
     closeRecreateResultAlert,
     contactServiceDetails,
 }: {
     msg: string | React.JSX.Element;
-    uuid: string;
+    serviceId: string;
+    orderId: string;
     type: 'success' | 'error';
     stopWatch: StopwatchResult;
     closeRecreateResultAlert: (arg: boolean) => void;
@@ -38,7 +40,7 @@ export const RecreateOrderSubmitResult = ({
             {' '}
             <Alert
                 message={`Processing Status`}
-                description={<OrderSubmitResultDetails msg={msg} serviceId={uuid} />}
+                description={<OrderSubmitResultDetails msg={msg} serviceId={serviceId} orderId={orderId} />}
                 showIcon
                 closable={true}
                 onClose={onClose}

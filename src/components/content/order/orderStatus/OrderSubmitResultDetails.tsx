@@ -14,9 +14,11 @@ import { myServicesRoute, orderPageRoute } from '../../../utils/constants';
 function OrderSubmitResultDetails({
     msg,
     serviceId,
+    orderId,
 }: {
     msg: string | React.JSX.Element;
     serviceId: string;
+    orderId: string;
 }): React.JSX.Element {
     const { Paragraph } = Typography;
     const navigate = useNavigate();
@@ -47,6 +49,21 @@ function OrderSubmitResultDetails({
                     >
                         {serviceId}
                     </span>
+                </Paragraph>
+            </div>
+            <div className={submitResultStyles.resultContainer}>
+                Order ID:&nbsp;
+                <Paragraph
+                    className={submitResultStyles.resultMainDetails}
+                    copyable={{
+                        text: String(serviceId),
+                        icon: [
+                            <CopyOutlined className={submitResultStyles.showDetailsTypographyCopy} key={uuidv4()} />,
+                            <CheckOutlined className={submitResultStyles.showDetailsTypographyCopy} key={uuidv4()} />,
+                        ],
+                    }}
+                >
+                    <span className={submitResultStyles.showDetailsTypographyCopyInfo}>{orderId}</span>
                 </Paragraph>
             </div>
             {msg}

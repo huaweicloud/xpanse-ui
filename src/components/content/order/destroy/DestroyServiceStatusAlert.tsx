@@ -138,10 +138,25 @@ function DestroyServiceStatusAlert({
         );
     }
 
+    const getOrderId = (): string => {
+        if (destroySubmitRequest.isSuccess) {
+            return destroySubmitRequest.data.orderId;
+        } else {
+            if (
+                isHandleKnownErrorResponse(destroySubmitRequest.error) &&
+                'orderId' in destroySubmitRequest.error.body
+            ) {
+                return destroySubmitRequest.error.body.orderId as string;
+            }
+            return '-';
+        }
+    };
+
     return (
         <DestroyOrderSubmitResult
             msg={msg ?? ''}
-            uuid={deployedService.serviceId}
+            serviceId={deployedService.serviceId}
+            orderId={getOrderId()}
             type={alertType}
             onClose={onClose}
             stopWatch={stopWatch}

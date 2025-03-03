@@ -15,13 +15,15 @@ import OrderSubmitResultDetails from '../orderStatus/OrderSubmitResultDetails';
 
 export const ScaleOrModifyOrderSubmitResult = ({
     msg,
-    uuid,
+    serviceId,
+    orderId,
     type,
     stopWatch,
     contactServiceDetails,
 }: {
     msg: string | React.JSX.Element;
-    uuid: string;
+    serviceId: string;
+    orderId: string;
     type: 'success' | 'error';
     stopWatch: StopwatchResult;
     contactServiceDetails: ServiceProviderContactDetails | undefined;
@@ -31,7 +33,7 @@ export const ScaleOrModifyOrderSubmitResult = ({
             {' '}
             <Alert
                 message={`Processing Status`}
-                description={<OrderSubmitResultDetails msg={msg} serviceId={uuid} />}
+                description={<OrderSubmitResultDetails msg={msg} serviceId={serviceId} orderId={orderId} />}
                 showIcon
                 closable={true}
                 type={type}

@@ -11,4 +11,7 @@ export enum OperationType {
     Port,
     UpdateConfig,
     Action,
+    Restart,
+    Start,
+    Stop,
 }
